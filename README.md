@@ -7,4 +7,5 @@ Funckjonalności:
 3. Naklejki
 4. Kontakt do kalendarza
 5. Wprowadzanie głosowe
-6. Co jeszcze chcemy?
+6. GUI
+7. Co jeszcze chcemy?
