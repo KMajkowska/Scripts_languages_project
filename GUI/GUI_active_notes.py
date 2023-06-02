@@ -50,7 +50,7 @@ class NotesActiveMainWindow(QMainWindow):
         model.setHeaderData(2, Qt.Orientation.Horizontal, "Time 🦩")
 
         query = QSqlQuery()
-        query.prepare("SELECT * FROM Notes WHERE active = 0")
+        query.prepare("SELECT * FROM Notes WHERE active = 1")
         query.exec()
 
         while query.next():
