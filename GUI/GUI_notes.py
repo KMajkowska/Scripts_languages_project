@@ -21,5 +21,5 @@ class NotesMainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Notes Main Window")
+        self.setWindowTitle("Notes Main Window 🦀")
         self.setGeometry(100, 100, 300, 200)
