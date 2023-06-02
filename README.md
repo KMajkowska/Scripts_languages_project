@@ -9,3 +9,16 @@ Funckjonalności:
 5. Wprowadzanie głosowe
 6. GUI
 7. Co jeszcze chcemy?
+
+TO DO
+1. Ogólne GUI
+2. GUI notatki
+3. klasa notatki
+4. baza danych 
+
+Kroki:
+1. Otwierasz ogólne GUI
+-> otwórz notatkę
+-> nowa notatka
+-> notatka z archiwum
+
