@@ -1,9 +1,10 @@
 from datetime import datetime
 
 class Note():
-    def __init__(self, text, time):
-        self.__text : str = text
-        self.__time : datetime = time
+    def __init__(self):
+        self.__title : str = ""
+        self.__text : str = ""
+        self.__time : datetime = ""
 
     def __str__(self):
         return self.__text + " " + str(self.__time)

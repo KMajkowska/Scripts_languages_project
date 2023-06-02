@@ -1,29 +1,25 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QListWidget, QHBoxLayout, QPushButton, QDateTimeEdit, QLabel, QLineEdit, QFileDialog, QListWidgetItem
 import sys
+import importlib.util
+
+# Ścieżka do pliku notes.py
+ścieżka_notes = r'C:\Users\karol\OneDrive\Desktop\projekt\notes\notes.py'
+
+# Załaduj moduł notes
+notes_spec = importlib.util.spec_from_file_location('notes', ścieżka_notes)
+notes_moduł = importlib.util.module_from_spec(notes_spec)
+notes_spec.loader.exec_module(notes_moduł)
+
+# Importuj klasę Note
+Note = notes_moduł.Note
 
 class NotesMainWindow(QMainWindow):
-
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Notateczki")
-        self.setMinimumSize(300,300)
 
-        self.centralWidget = QWidget()
-        self.setCentralWidget(self.centralWidget)
+        self.notes = Note()
+        self.initUI()
 
-        self.layout = QVBoxLayout()
-        self.centralWidget.setLayout(self.layout)
-
-        self.label = QLabel()
-        self.label.setText("test")
-
-        self.layout.addWidget(self.label)
-
-def main():
-    app = QApplication(sys.argv)
-    window = NotesMainWindow()
-    window.show()
-    sys.exit(app.exec())
-
-if __name__ == "__main__":
-    main()
+    def initUI(self):
+        self.setWindowTitle("Notes Main Window")
+        self.setGeometry(100, 100, 300, 200)
