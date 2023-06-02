@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QListWidget, QHBoxLayout, QPushButton, QDateTimeEdit, QLabel, QLineEdit, QFileDialog, QListWidgetItem
 import sys
 
-class NotesMainWindow(QMainWindow):
+class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
@@ -21,7 +21,7 @@ class NotesMainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    window = NotesMainWindow()
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())
 
