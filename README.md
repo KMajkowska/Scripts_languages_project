@@ -22,3 +22,4 @@ Kroki:
 -> nowa notatka
 -> notatka z archiwum
 
+Czy chcemy edytować istniejące w bazie notatki?
