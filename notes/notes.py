@@ -1,11 +1,13 @@
 from datetime import datetime
+import sqlite3
 
 class Note():
-    def __init__(self):
-        self.__title : str = ""
-        self.__text : str = ""
-        self.__time : datetime = ""
-        self.__active : bool = True
+    def __init__(self, opened, title, text, time, active):
+        self.__title : str = title
+        self.__text : str = text
+        self.__time : datetime = time
+        self.__active : bool = active
+        self.__opened : str = opened
 
     def __str__(self):
         return self.__text + " " + str(self.__time)
@@ -33,10 +35,16 @@ class Note():
 
     def getActive(self):
         return self.__active
-    
-    def openedNote(self, title, text, time, active):
-        self.__title = title
-        self.__text = text
-        self.__time = time
-        self.__active = active
 
+    def addToDatabase(self):
+        if self.__opened == "new":
+            connection = sqlite3.connect('NotesDatabase.sqlite3')
+            cursor = connection.cursor()
+
+            # Wstaw notatkę do bazy danych
+            cursor.execute('INSERT INTO Notes (title, text, time, active) VALUES (?, ?, ?, ?)',
+                        (self.__title, self.__text, str(self.__time), int(self.__active)))
+
+            # Zatwierdź zmiany i zamknij połączenie
+            connection.commit()
+            connection.close()

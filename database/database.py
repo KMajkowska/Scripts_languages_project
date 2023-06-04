@@ -16,9 +16,11 @@ class Notes(Base):
     time :Mapped[DateTime] = mapped_column(DateTime)
     active:Mapped[bool]= mapped_column(Boolean)
  
-if __name__ == "__main__":
+def main():
     Base.metadata.create_all(ENGINE)
     if os.path.exists(f'NotesDatabase.sqlite3'):
         print("Database created")
     else:
         print("Database not created")
+if __name__ == "__main__":
+    main()

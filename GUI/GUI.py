@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         self.buttonOpenNotes.clicked.connect(self.openNotes)
 
         self.buttonNewNotes = QPushButton("New notes 🐧", self)
-        self.buttonNewNotes.clicked.connect(self.openNotes)
+        self.buttonNewNotes.clicked.connect(self.newNotes)
 
         self.buttonOpenNotesFromArchive = QPushButton("Open notes from archive 🦜", self)
         self.buttonOpenNotesFromArchive.clicked.connect(self.openNotesFromArchive)
@@ -43,14 +43,17 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot()
     def openNotes(self):
-        if self.notesWindow is None:  
-            self.notesWindow = NotesActiveMainWindow()
+        self.notesWindow = NotesActiveMainWindow()
+        self.notesWindow.show()
+
+    @pyqtSlot()
+    def newNotes(self):
+        self.notesWindow = NotesMainWindow()
         self.notesWindow.show()
 
     @pyqtSlot()
     def openNotesFromArchive(self):
-        if self.notesWindow is None:  
-            self.notesWindow = NotesArchiveMainWindow()
+        self.notesWindow = NotesArchiveMainWindow()
         self.notesWindow.show()
 
 def main():

@@ -1,8 +1,10 @@
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import QMainWindow, QApplication, QLabel, QVBoxLayout, QWidget, QComboBox, QStyledItemDelegate, QTableView
 from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSlot 
 import importlib.util
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery
+from GUI_note_box import Notes
 
 # Ścieżka do pliku notes.py
 ścieżka_notes = r'C:\Users\karol\OneDrive\Desktop\projekt\notes\notes.py'
@@ -39,18 +41,16 @@ class NotesArchiveMainWindow(QMainWindow):
         self.layout.addWidget(self.mainLabel)
         self.layout.addWidget(self.notes_list)
 
-        self.load_archive_notes()
-
     def load_archive_notes(self):
         model = QStandardItemModel()
 
         model.setColumnCount(3)
-        model.setHeaderData(0, Qt.Orientation.Horizontal, "Title 🐝")
-        model.setHeaderData(1, Qt.Orientation.Horizontal, "Text 🐥")
-        model.setHeaderData(2, Qt.Orientation.Horizontal, "Time 🦚")
+        model.setHeaderData(0, Qt.Orientation.Horizontal, "Title 🦉")
+        model.setHeaderData(1, Qt.Orientation.Horizontal, "Text 🐶")
+        model.setHeaderData(2, Qt.Orientation.Horizontal, "Time 🦩")
 
         query = QSqlQuery()
-        query.prepare("SELECT * FROM Notes WHERE active = 0")
+        query.prepare("SELECT * FROM Notes WHERE active = 1")
         query.exec()
 
         while query.next():
@@ -69,13 +69,9 @@ class NotesArchiveMainWindow(QMainWindow):
     def open_database(self):
         self.database = QSqlDatabase.addDatabase("QSQLITE")
         self.database.setDatabaseName('NotesDatabase.sqlite3')
-
+ 
         if not self.database.open():
             self.mainLabel.setText("Database is not open")
             return False
         self.load_archive_notes()
-        return True
     
-    def close_database(self):
-        self.database.close()
-

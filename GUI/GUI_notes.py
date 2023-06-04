@@ -1,6 +1,8 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QListWidget, QHBoxLayout, QPushButton, QDateTimeEdit, QLabel, QLineEdit, QFileDialog, QListWidgetItem
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLineEdit, QLabel, QDateTimeEdit, QPushButton
 import sys
+from PyQt6.QtCore import pyqtSlot 
 import importlib.util
+from GUI_note_box import Notes
 
 # Ścieżka do pliku notes.py
 ścieżka_notes = r'C:\Users\karol\OneDrive\Desktop\projekt\notes\notes.py'
@@ -17,9 +19,46 @@ class NotesMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.notes = Note()
+        self.notes = None
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Notes Main Window 🦀")
+        self.setWindowTitle("Create note 🦀")
         self.setGeometry(100, 100, 300, 200)
+
+        self.centralWidget = QWidget()
+        self.setCentralWidget(self.centralWidget)
+        
+        self.layout = QVBoxLayout()
+        self.centralWidget.setLayout(self.layout)
+
+        self.title_label = QLabel()
+        self.title_label.setText("Title")
+        self.title = QLineEdit()
+        self.text_label = QLabel()
+        self.text_label.setText("Text")
+        self.text = QLineEdit()
+        self.time_label = QLabel()
+        self.time_label.setText("Time")
+        self.time = QDateTimeEdit()
+
+        self.layout.addWidget(self.title_label)
+        self.layout.addWidget(self.title)
+        self.layout.addWidget(self.text_label)
+        self.layout.addWidget(self.text)
+        self.layout.addWidget(self.time_label)
+        self.layout.addWidget(self.time)
+
+        self.createNote = QPushButton("Yes, right now I want to create new note! 🦔")
+        self.createNote.clicked.connect(self.openNotes)
+        self.layout.addWidget(self.createNote)
+
+    @pyqtSlot()
+    def openNotes(self):
+        title_text = self.title.text()
+        text_text = self.text.text()
+        time_text = self.time.text()
+        self.note = Note("new", title_text, text_text, time_text, True)
+        self.notesWindow = Notes(title_text, text_text, time_text, self.note)
+        self.notesWindow.show()
+
