@@ -58,7 +58,7 @@ class NotesMainWindow(QMainWindow):
         title_text = self.title.text()
         text_text = self.text.text()
         time_text = self.time.text()
-        self.note = Note("new", title_text, text_text, time_text, True)
+        self.note = Note(-1, title_text, text_text, time_text, True)
         self.notesWindow = Notes(title_text, text_text, time_text, self.note)
         self.notesWindow.show()
 

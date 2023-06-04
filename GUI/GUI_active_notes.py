@@ -44,20 +44,21 @@ class NotesActiveMainWindow(QMainWindow):
 
         self.load_active_notes()
 
-        self.tableView.clicked.connect(self.handle_table_view_clicked)  # Dodanie sygnału clicked
+        self.tableView.clicked.connect(self.handle_table_view_clicked)  
 
     def load_active_notes(self):
         query = QSqlQuery()
-        query.prepare("SELECT title, text, time FROM Notes WHERE active = 1")
+        query.prepare("SELECT * FROM Notes WHERE active = 1")
         query.exec()
 
         data = []
         while query.next():
-            column1 = query.value(0)
-            column2 = query.value(1)
-            column3 = query.value(2)
-            data.append([column1, column2, column3])
-
+            self.uid = query.value(0)
+            self.title = query.value(1)
+            self.text = query.value(2)
+            self.time = query.value(3)
+            self.active = query.value(4)
+            data.append([self.title, self.text, self.time])
         model = NotesTableModel(data)
 
         # Ustawianie modelu danych dla TableView
@@ -87,10 +88,9 @@ class NotesActiveMainWindow(QMainWindow):
         selected_data = []
         for column in range(column_count):
             data = model.index(selected_row, column).data(Qt.ItemDataRole.DisplayRole)
-            print(data)
             selected_data.append(data)
             
-        note = Note("opened", selected_data[0], selected_data[1], selected_data[2], True)
+        note = Note(self.uid, selected_data[0], selected_data[1], selected_data[2], self.active)
         self.notes_window = Notes(selected_data[0], selected_data[1], selected_data[2], note)
         self.notes_window.show()
         

@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLineEdit, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLineEdit, QLabel, QPushButton
 import sys
 import os
 import importlib.util
@@ -22,7 +22,6 @@ class Notes(QMainWindow):
         self.title = title
         self.text = text
         self.time = time
-        note.addToDatabase()
         self.initUI()
 
     def initUI(self):
@@ -35,10 +34,30 @@ class Notes(QMainWindow):
         self.layout = QVBoxLayout()
         self.centralWidget.setLayout(self.layout)
 
-        self.text_label = QLabel()
-        self.text_label.setText(f"{self.text}")
-        self.time_label = QLabel()
-        self.time_label.setText(f"{self.time}")
+        self.text_line = QLineEdit()
+        self.text_line.setText(f"{self.text}")
+        self.time_line = QLineEdit()
+        self.time_line.setText(f"{self.time}")
 
-        self.layout.addWidget(self.text_label)
-        self.layout.addWidget(self.time_label)
+        self.layout.addWidget(self.text_line)
+        self.layout.addWidget(self.time_line)
+
+        self.updateNote = QPushButton("Yes, please, update my note! 🐵")
+        self.updateNote.clicked.connect(self.updateOpenedNote)
+
+        self.layout.addWidget(self.updateNote)
+
+        self.archiveNote = QPushButton("Yes, please, archive my note! 🦨")
+        self.archiveNote.clicked.connect(self.archiveOpenedNote)
+
+        self.layout.addWidget(self.archiveNote)
+
+
+    def updateOpenedNote(self):
+        text_text = self.text_line.text()
+        time_text = self.time_line.text()
+
+        self.notes.update(text_text, time_text)
+
+    def archiveOpenedNote(self):
+         self.notes.archive()

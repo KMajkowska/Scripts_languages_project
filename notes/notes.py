@@ -2,12 +2,12 @@ from datetime import datetime
 import sqlite3
 
 class Note():
-    def __init__(self, opened, title, text, time, active):
+    def __init__(self, uid, title, text, time, active):
         self.__title : str = title
         self.__text : str = text
         self.__time : datetime = time
         self.__active : bool = active
-        self.__opened : str = opened
+        self.__uid : int = uid
 
     def __str__(self):
         return self.__text + " " + str(self.__time)
@@ -37,7 +37,7 @@ class Note():
         return self.__active
 
     def addToDatabase(self):
-        if self.__opened == "new":
+        if self.__uid == -1:
             connection = sqlite3.connect('NotesDatabase.sqlite3')
             cursor = connection.cursor()
 
@@ -48,3 +48,24 @@ class Note():
             # Zatwierdź zmiany i zamknij połączenie
             connection.commit()
             connection.close()
+
+        else:
+            connection = sqlite3.connect('NotesDatabase.sqlite3')
+            cursor = connection.cursor()
+
+            # Zaktualizuj notatkę w bazie danych
+            cursor.execute('UPDATE Notes SET title=?, text=?, time=?, active=? WHERE uid=?',
+                        (self.__title, self.__text, str(self.__time), int(self.__active), self.__uid))
+
+            # Zatwierdź zmiany i zamknij połączenie
+            connection.commit()
+            connection.close()
+
+    def update(self, text, time):
+        self.__text = text
+        self.__time = time
+        self.addToDatabase()
+
+    def archive(self):
+        self.__active = False
+        self.addToDatabase()
