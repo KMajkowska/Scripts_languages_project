@@ -3,7 +3,7 @@ from sqlalchemy import String, DateTime, Boolean
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 import os
 
-ENGINE = create_engine(f'sqlite:///NotesDatabase.sqlite3')
+ENGINE = create_engine("sqlite:///NotesDatabase.sqlite3")
 
 class Base(DeclarativeBase):
     pass
@@ -18,7 +18,7 @@ class Notes(Base):
  
 def main():
     Base.metadata.create_all(ENGINE)
-    if os.path.exists(f'NotesDatabase.sqlite3'):
+    if os.path.exists('NotesDatabase.sqlite3'):
         print("Database created")
     else:
         print("Database not created")

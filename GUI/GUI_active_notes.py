@@ -5,9 +5,11 @@ from PyQt6.QtCore import pyqtSlot
 import importlib.util
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 from GUI_note_box import Notes
+from functions import CURRENT_NOTES_PATH
+
 
 # Ścieżka do pliku notes.py
-ścieżka_notes = r'C:\Users\karol\OneDrive\Desktop\projekt\notes\notes.py'
+ścieżka_notes = CURRENT_NOTES_PATH
 
 # Załaduj moduł notes
 notes_spec = importlib.util.spec_from_file_location('notes', ścieżka_notes)
@@ -17,12 +19,13 @@ notes_spec.loader.exec_module(notes_moduł)
 # Importuj klasę Note
 Note = notes_moduł.Note
 class NotesActiveMainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, color):
         super().__init__()
 
         self.database = None
         self.notes_window = None
         self.tableView = QTableView()
+        self.color = color
         self.initUI()
 
     def initUI(self):
@@ -92,6 +95,7 @@ class NotesActiveMainWindow(QMainWindow):
             
         note = Note(self.uid, selected_data[0], selected_data[1], selected_data[2], self.active)
         self.notes_window = Notes(selected_data[0], selected_data[1], selected_data[2], note)
+        self.notes_window.setStyleSheet(f"background-color: {self.color};")
         self.notes_window.show()
         
     
