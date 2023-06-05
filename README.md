@@ -4,7 +4,7 @@ Będzie to aplikacja do robienia notatek
 Funckjonalności:
 1. Archiwizacja
 2. Customowane tła
-3. Naklejki
+3. Naklejki -> biblioteka emoji
 4. Kontakt do kalendarza
 5. Wprowadzanie głosowe
 6. GUI
