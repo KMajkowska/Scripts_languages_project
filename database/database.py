@@ -10,10 +10,11 @@ class Base(DeclarativeBase):
 
 class Notes(Base):
     __tablename__ = 'Notes'
-    uid:Mapped[int]= mapped_column(primary_key=True, autoincrement=True)
+    uid:Mapped[str]= mapped_column(primary_key=True)
     title:Mapped[str]= mapped_column(String)
     text:Mapped[str] = mapped_column(String)
     time :Mapped[DateTime] = mapped_column(DateTime)
+    last_edit:Mapped[DateTime] = mapped_column(DateTime)
     active:Mapped[bool]= mapped_column(Boolean)
  
 def main():

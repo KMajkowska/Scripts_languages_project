@@ -50,7 +50,7 @@ class NotesArchiveMainWindow(QMainWindow):
 
     def load_archive_notes(self):
         query = QSqlQuery()
-        query.prepare("SELECT uid, title, text, time, active FROM Notes WHERE active = 0")
+        query.prepare("SELECT uid, title, text, time, last_edit, active FROM Notes WHERE active = 0")
         query.exec()
 
         data = []
@@ -59,8 +59,9 @@ class NotesArchiveMainWindow(QMainWindow):
             self.title = query.value(1)
             self.text = query.value(2)
             self.time = query.value(3)
-            self.active = query.value(4)
-            data.append([self.title, self.text, self.time])
+            self.last_edit = query.value(4)
+            self.active = query.value(5)
+            data.append([self.title, self.text, self.time, self.last_edit])
         model = NotesTableModel(data)
 
         # Ustawianie modelu danych dla TableView
@@ -92,8 +93,8 @@ class NotesArchiveMainWindow(QMainWindow):
             data = model.index(selected_row, column).data(Qt.ItemDataRole.DisplayRole)
             selected_data.append(data)
             
-        note = Note(self.uid, selected_data[0], selected_data[1], selected_data[2], self.active)
-        self.notes_window = Notes(selected_data[0], selected_data[1], selected_data[2], note)
+        note = Note(self.uid, selected_data[0], selected_data[1], selected_data[2], selected_data[3], self.active)
+        self.notes_window = Notes(selected_data[0], selected_data[1], selected_data[2], selected_data[3],note)
         self.notes_window.show()
         
     
@@ -106,7 +107,7 @@ class NotesTableModel(QAbstractTableModel):
         return len(self.data)
 
     def columnCount(self, parent=QModelIndex()):
-        return 3
+        return 4
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole:

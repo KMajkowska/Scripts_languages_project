@@ -1,13 +1,15 @@
 from datetime import datetime
 import sqlite3
 
+CONNECTON = 'NotesDatabase.sqlite3'
 class Note():
-    def __init__(self, uid, title, text, time, active):
+    def __init__(self, uid, title, text, time, last_edit,active):
         self.__title : str = title
         self.__text : str = text
         self.__time : datetime = time
+        self.__last_edit: datetime = last_edit
         self.__active : bool = active
-        self.__uid : int = uid
+        self.__uid : str = uid
 
     def __str__(self):
         return self.__text + " " + str(self.__time)
@@ -28,42 +30,60 @@ class Note():
         self.__title = title
         
     def getTitle(self):
-        return self.__text
+        return self.__title
         
     def setActive(self, active):
         self.__active = active
 
     def getActive(self):
         return self.__active
+    
+    def setLastEdit(self, last_edit):
+        self.__last_edit = last_edit
+
+    def getLastEdit(self):
+        return self.__last_edit
 
     def addToDatabase(self):
         if self.__uid == -1:
-            connection = sqlite3.connect('NotesDatabase.sqlite3')
+            connection = sqlite3.connect(CONNECTON)
             cursor = connection.cursor()
 
+            self.__uid = str(datetime.now())
             # Wstaw notatkę do bazy danych
-            cursor.execute('INSERT INTO Notes (title, text, time, active) VALUES (?, ?, ?, ?)',
-                        (self.__title, self.__text, str(self.__time), int(self.__active)))
+            cursor.execute('INSERT INTO Notes (title, text, time, last_edit, active, uid) VALUES (?, ?, ?, ?, ?, ?)',
+                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid)))
 
             # Zatwierdź zmiany i zamknij połączenie
             connection.commit()
             connection.close()
 
         else:
-            connection = sqlite3.connect('NotesDatabase.sqlite3')
+            connection = sqlite3.connect(CONNECTON)
             cursor = connection.cursor()
 
             # Zaktualizuj notatkę w bazie danych
-            cursor.execute('UPDATE Notes SET title=?, text=?, time=?, active=? WHERE uid=?',
-                        (self.__title, self.__text, str(self.__time), int(self.__active), self.__uid))
+            cursor.execute('UPDATE Notes SET title=?, text=?, time=?, last_edit=?, active=? WHERE uid=?',
+                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid)))
 
             # Zatwierdź zmiany i zamknij połączenie
             connection.commit()
             connection.close()
 
-    def update(self, text, time):
+    def deleteFromDatabase(self):
+        connection = sqlite3.connect(CONNECTON)
+        cursor = connection.cursor()
+
+        cursor.execute('DELETE FROM Notes WHERE uid = ?', (self.__uid,))
+
+        connection.commit()
+        connection.close()
+
+    def update(self, title, text, time, last_edit):
+        self.__title = title
         self.__text = text
         self.__time = time
+        self.__last_edit = last_edit
         self.addToDatabase()
 
     def archive(self):

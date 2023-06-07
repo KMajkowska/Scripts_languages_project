@@ -17,12 +17,13 @@ from functions import speech_to_text
 Note = notes_moduł.Note
 
 class Notes(QMainWindow):
-    def __init__(self, title, text, time, note):
+    def __init__(self, title, text, time, last_edit, note):
         super().__init__()
 
         self.notes = note
         self.title = title
         self.text = text
+        self.last_edit = last_edit
         self.time = time
         self.initUI()
 
@@ -35,14 +36,16 @@ class Notes(QMainWindow):
         self.layout = QVBoxLayout()
         self.centralWidget.setLayout(self.layout)
 
+        self.title_line = QLineEdit()
+        self.title_line.setText(f"{self.title}")
+        self.title_line.setReadOnly(True)
         self.text_line = QPlainTextEdit()
         self.text_line.setPlainText(f"{self.text}")
-        self.time_line = QLineEdit()
-        self.time_line.setText(f"{self.time}")
-        self.time_line.setReadOnly(True)
+        self.text_line.setReadOnly(True)
 
+        self.layout.addWidget(self.title_line)
         self.layout.addWidget(self.text_line)
-        self.layout.addWidget(self.time_line)
+        
 
         self.updateNote = QPushButton("Yes, please, update my note! 🐵")
         self.updateNote.clicked.connect(self.updateOpenedNote)
@@ -55,10 +58,10 @@ class Notes(QMainWindow):
         self.layout.addWidget(self.archiveNote)
 
     def updateOpenedNote(self):
+        title_text = self.title_line.text()
         text_text = self.text_line.toPlainText()
-        time_text = self.time_line.text()
 
-        self.notes.update(text_text, time_text)
+        self.notes.update(title_text, text_text, self.time, self.last_edit)
 
     def archiveOpenedNote(self):
          self.notes.archive()

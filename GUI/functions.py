@@ -1,5 +1,6 @@
 import os
 import speech_recognition as sr
+import emoji
 
 CURRENT_NOTES_PATH = os.path.join(os.getcwd(),"notes\\notes.py")
 
@@ -13,6 +14,9 @@ def speech_to_text():
             return text
         except sr.UnknownValueError: print("Niezrozumiała treść, spróbuj jeszcze raz")
     
-if __name__ == "__main__":
-    speech_to_text()
-   
+
+def get_emoji_list():
+    emoji_dict = str(emoji.EMOJI_DATA)
+    emojis = emoji.distinct_emoji_list(emoji_dict)
+    return emojis
+
