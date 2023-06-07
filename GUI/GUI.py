@@ -57,6 +57,7 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.buttonOpenNotesFromArchive)
 
         self.setStyleSheet(create_default_stylesheet())
+        self.openNotes.change_colors()
     
     def createColorButton(self, color):
         button = QPushButton()
@@ -71,6 +72,7 @@ class MainWindow(QMainWindow):
         self.openNotes.setStyleSheet(f"background-color: {color};")
         self.archiveNotes.setStyleSheet(f"background-color: {color};")
         self.openNotes.color = color
+        self.openNotes.change_colors()
         self.archiveNotes.color = color
 
 
