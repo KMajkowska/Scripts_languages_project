@@ -1,5 +1,5 @@
 from PyQt6.QtCore import Qt, QAbstractTableModel, QModelIndex
-from PyQt6.QtWidgets import QMainWindow, QApplication, QLabel, QVBoxLayout, QWidget, QPushButton, QTableView
+from PyQt6.QtWidgets import QMainWindow, QApplication, QLabel, QVBoxLayout, QWidget, QPushButton, QTableView, QHeaderView
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSlot 
 import importlib.util
@@ -18,13 +18,14 @@ notes_spec.loader.exec_module(notes_moduł)
 # Importuj klasę Note
 Note = notes_moduł.Note
 class NotesArchiveMainWindow(QMainWindow):
-    def __init__(self, color):
+    def __init__(self, color, main):
         super().__init__()
 
         self.database = None
         self.notes_window = None
         self.tableView = QTableView()
         self.color = color
+        self.main = main
         self.initUI()
 
     def initUI(self):
@@ -44,9 +45,11 @@ class NotesArchiveMainWindow(QMainWindow):
         self.layout.addWidget(self.mainLabel)
         self.layout.addWidget(self.tableView)
 
-        self.load_archive_notes()
+        self.tableView.clicked.connect(self.handle_table_view_clicked)
 
-        self.tableView.clicked.connect(self.handle_table_view_clicked)  # Dodanie sygnału clicked
+        self.header = self.tableView.horizontalHeader()
+        self.header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+
 
     def load_archive_notes(self):
         query = QSqlQuery()
@@ -85,23 +88,36 @@ class NotesArchiveMainWindow(QMainWindow):
     def handle_table_view_clicked(self, index):
         selected_row = index.row()
 
-        model = self.tableView.model()
-        column_count = model.columnCount()
+        self.model = self.tableView.model()
+        column_count = self.model.columnCount()
 
         selected_data = []
         for column in range(column_count):
-            data = model.index(selected_row, column).data(Qt.ItemDataRole.DisplayRole)
+            data = self.model.index(selected_row, column).data()
             selected_data.append(data)
             
         note = Note(self.uid, selected_data[0], selected_data[1], selected_data[2], selected_data[3], self.active)
-        self.notes_window = Notes(selected_data[0], selected_data[1], selected_data[2], selected_data[3],note)
+        self.notes_window = Notes(selected_data[0], selected_data[1], selected_data[2], selected_data[3],note, self)
+        self.notes_window.setStyleSheet(f"background-color: {self.color};")
         self.notes_window.show()
         
-    
+    def deleteNote(self):
+        selected_row = self.tableView.currentIndex().row()
+
+        if selected_row >= 0:
+            self.model = self.tableView.model()
+            self.model.removeRow(selected_row)
+
+            self.tableView.setModel(self.model)
+            self.model.layoutChanged.emit()
+        else:
+            print("No note selected.")
+
 class NotesTableModel(QAbstractTableModel):
     def __init__(self, data):
         super().__init__()
         self.data = data
+        self.columns = ["Title", "Note preview", "Creation date", "Last edit date"]
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.data)
@@ -117,3 +133,17 @@ class NotesTableModel(QAbstractTableModel):
             return str(value)
 
         return None
+    
+    def headerData(self, section, orientation, role):
+        if role == Qt.ItemDataRole.DisplayRole:
+            if orientation == Qt.Orientation.Horizontal:
+                return self.columns[section]
+            elif orientation == Qt.Orientation.Vertical:
+                return f"{section + 1}"
+
+        return super().headerData(section, orientation, role)
+    
+    def removeRow(self, row, parent=QModelIndex()):
+        self.beginRemoveRows(parent, row, row)
+        del self.data[row]
+        self.endRemoveRows()

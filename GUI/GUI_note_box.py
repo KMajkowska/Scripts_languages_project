@@ -11,20 +11,21 @@ from functions import CURRENT_NOTES_PATH
 notes_spec = importlib.util.spec_from_file_location('notes', ścieżka_notes)
 notes_moduł = importlib.util.module_from_spec(notes_spec)
 notes_spec.loader.exec_module(notes_moduł)
-from functions import speech_to_text
 
 # Importuj klasę Note
 Note = notes_moduł.Note
 
 class Notes(QMainWindow):
-    def __init__(self, title, text, time, last_edit, note):
+    def __init__(self, title, text, time, last_edit, note, archive):
         super().__init__()
 
-        self.notes = note
+        self.note = note
         self.title = title
         self.text = text
         self.last_edit = last_edit
         self.time = time
+        self.archive = archive
+        
         self.initUI()
 
     def initUI(self):
@@ -47,21 +48,25 @@ class Notes(QMainWindow):
         self.layout.addWidget(self.text_line)
         
 
-        self.updateNote = QPushButton("Yes, please, update my note! 🐵")
-        self.updateNote.clicked.connect(self.updateOpenedNote)
+        self.retrieveNote = QPushButton("Yes, please, retrieve my note! 🐵")
+        self.retrieveNote.clicked.connect(self.retrieveOpenedNote)
 
-        self.layout.addWidget(self.updateNote)
+        self.layout.addWidget(self.retrieveNote)
         
-        self.archiveNote = QPushButton("Yes, please, archive my note! 🦨")
-        self.archiveNote.clicked.connect(self.archiveOpenedNote)
+        self.deleteNote = QPushButton("Yes, please, delete my note! 🦨")
+        self.deleteNote.clicked.connect(self.deleteOpenedNote)
 
-        self.layout.addWidget(self.archiveNote)
+        self.layout.addWidget(self.deleteNote)
 
-    def updateOpenedNote(self):
-        title_text = self.title_line.text()
-        text_text = self.text_line.toPlainText()
+    def retrieveOpenedNote(self):
+        self.archive.deleteNote()
+        self.note.update(self.title, self.text, self.time, self.last_edit)
+        self.archive.main.openNotes.add_new_note_to_list(self.note)
+        #self.archive.load_archive_notes()
+        self.close()
 
-        self.notes.update(title_text, text_text, self.time, self.last_edit)
 
-    def archiveOpenedNote(self):
-         self.notes.archive()
+    def deleteOpenedNote(self):
+         self.archive.deleteNote()
+         self.note.deleteFromDatabase()
+         self.close()

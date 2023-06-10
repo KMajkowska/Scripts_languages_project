@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QDateTime
-from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QListWidgetItem,QMessageBox, QPushButton,QLineEdit, QDateTimeEdit, QListView, QListWidget, QHBoxLayout, QPlainTextEdit, QAbstractItemView
+from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QWidget, QListWidgetItem,QMessageBox, QTextEdit, QPushButton,QLineEdit, QDateTimeEdit, QListView, QListWidget, QHBoxLayout, QPlainTextEdit, QAbstractItemView
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSlot 
 from PyQt6.QtGui import QFont, QPalette, QColor
@@ -7,6 +7,7 @@ import importlib.util
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 from functions import CURRENT_NOTES_PATH
 from functions import speech_to_text
+
 
 
 # Ścieżka do pliku notes.py
@@ -73,13 +74,10 @@ class NotesActiveMainWindow(QMainWindow):
             last_edit = query.value(4)
             active = query.value(5)
             note = Note(uid, title, text, time, last_edit, active)
-            self.notes.append(note)
             self.add_note_to_list(note)
 
             query.previous()
         
-
-
     def open_database(self):
         self.database = QSqlDatabase.addDatabase("QSQLITE")
         self.database.setDatabaseName('NotesDatabase.sqlite3')
@@ -130,7 +128,6 @@ class NotesActiveMainWindow(QMainWindow):
         self.new_note_button = QPushButton("Create new Note")
         self.new_note_button.clicked.connect(self.open_new_note)
         self.notes_layout.addWidget(self.new_note_button)
-        self.new_note_button.click()
 
     def add_note_to_list(self, note):
         item_text = self.get_item_note_text(note)
@@ -138,7 +135,7 @@ class NotesActiveMainWindow(QMainWindow):
         font = QFont()
         font.setBold(True)
         list_item.setFont(font)
-
+        self.notes.append(note)
         self.notes_list_widget.addItem(list_item)
 
     def add_new_note_to_list(self, note):
@@ -147,10 +144,8 @@ class NotesActiveMainWindow(QMainWindow):
         font = QFont()
         font.setBold(True)
         list_item.setFont(font)
-
+        self.notes.insert(0,note)
         self.notes_list_widget.insertItem(0,list_item)
-
-
 
     def update_note_in_list(self, index, note):
         item_text = self.get_item_note_text(note)
@@ -174,11 +169,12 @@ class NotesActiveMainWindow(QMainWindow):
             self.note_content.setReadOnly(True)
 
     def edit_note(self):
-        if self.current_note:
+        if self.current_note is not None:
             self.note_title.setReadOnly(False)
             self.note_content.setReadOnly(False)
             self.note_title.setFocus()
             self.note_content.setFocus()
+
 
     def delete_note(self):
         if self.current_note is not None:
@@ -191,12 +187,12 @@ class NotesActiveMainWindow(QMainWindow):
             response = msg_box.exec()
             
             if response == QMessageBox.StandardButton.Yes:
+                self.current_note.deleteFromDatabase()
                 self.notes.remove(self.current_note)
                 self.notes_list_widget.takeItem(self.notes_list_widget.currentRow())
-                self.current_note.deleteFromDatabase()
                 self.current_note=None
-                self.clear_editor()
-                self.new_note_button.click()
+                self.open_new_note()
+                
            
                 print("Note deleted")
             else:
@@ -209,14 +205,14 @@ class NotesActiveMainWindow(QMainWindow):
             self.main.archiveNotes.load_archive_notes()
             self.notes.remove(self.current_note)
             self.notes_list_widget.takeItem(self.notes_list_widget.currentRow())
-            self.clear_editor()
+            self.open_new_note()
             
 
     def clear_editor(self):
-        self.current_note = None
         self.note_title.setText("")
         self.note_content.setPlainText("")
         self.notes_list_widget.clearSelection()
+        self.notes_list_widget.setCurrentRow(-1)
 
     def open_new_note(self):
         self.clear_editor()
@@ -237,9 +233,8 @@ class NotesActiveMainWindow(QMainWindow):
         note = Note(-1, title, text, time, last_edit, True)
         self.current_note = note
         note.addToDatabase()
-        self.notes.insert(0, note)
         self.add_new_note_to_list(note)
-        self.notes_list_widget.setCurrentRow(0)
+        self.notes_list_widget.setCurrentRow(-1)
     
 
     def save_note(self):
@@ -263,6 +258,7 @@ class NotesActiveMainWindow(QMainWindow):
             self.note_content.appendPlainText(text)
         except ValueError: pass
 
+
     def change_colors(self):
         styleSheet = """
             QPushButton {
@@ -272,7 +268,7 @@ class NotesActiveMainWindow(QMainWindow):
             QPushButton:pressed {
                 background-color: rgba(0, 0, 0, 100);}"
         """
-        self.note_title.setStyleSheet("background-color: rgba(255, 255, 255, 150);")
+        self.note_title.setStyleSheet("border: 3px solid dark; background-color: rgba(255, 255, 255, 150);")
         self.note_content.setStyleSheet("border: 3px solid dark; background-color: rgba(255, 255, 255, 150);")
         self.new_note_button.setStyleSheet(styleSheet)
         self.edit_button.setStyleSheet(styleSheet)
@@ -282,6 +278,12 @@ class NotesActiveMainWindow(QMainWindow):
         self.transcribe_button.setStyleSheet(styleSheet)
         self.main.buttonOpenNotes.setStyleSheet(styleSheet)
         self.main.buttonOpenNotesFromArchive.setStyleSheet(styleSheet)
+        self.notes_list_widget.setStyleSheet("""
+                                             QListWidget::item { border: 1px solid rgba(0, 0, 0, 120);
+                                              background-color: rgba(255, 255, 255, 90); }
+                                             QListWidget::item:selected { color: rgba(0, 0, 0, 120); }"
+                                             """)
+
 
 
     

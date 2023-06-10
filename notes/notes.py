@@ -84,8 +84,11 @@ class Note():
         self.__text = text
         self.__time = time
         self.__last_edit = last_edit
+        self.__active = True
         self.addToDatabase()
+        return self
 
     def archive(self):
         self.__active = False
         self.addToDatabase()
+        return self
