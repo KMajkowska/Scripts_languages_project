@@ -16,6 +16,7 @@ class Notes(Base):
     time :Mapped[DateTime] = mapped_column(DateTime)
     last_edit:Mapped[DateTime] = mapped_column(DateTime)
     active:Mapped[bool]= mapped_column(Boolean)
+    reminder : Mapped[DateTime] = mapped_column(DateTime)
  
 def main():
     Base.metadata.create_all(ENGINE)
