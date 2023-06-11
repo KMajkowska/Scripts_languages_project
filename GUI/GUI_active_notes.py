@@ -59,7 +59,7 @@ class NotesActiveMainWindow(QMainWindow):
 
         self.notes_list_widget.currentRowChanged.connect(self.select_note)
         self.notes_layout.addWidget(self.notes_list_widget)
-        self.filtered_notes.currentRowChanged.connect(self.select_note)
+        self.filtered_notes.currentRowChanged.connect(self.select_filtered_note)
         self.notes_layout.addWidget(self.filtered_notes)
 
         self.create_note_editor()
@@ -255,8 +255,20 @@ class NotesActiveMainWindow(QMainWindow):
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
 
+    def select_filtered_note(self, index):
+        if index >= 0 and index < len(self.filtered):
+            self.current_note = self.filtered[index]
+            self.note_title.setText(self.current_note.getTitle())
+            if str(self.current_note.getReminder()) == str(self.reminder):
+                self.note_content.setPlainText(self.current_note.getText())
+            else:
+                self.note_content.setPlainText(self.current_note.getText() + '\nREMINDER: ' + str(self.current_note.getReminder()))
+            self.note_title.setReadOnly(True)
+            self.note_content.setReadOnly(True)
+
     def edit_note(self):
         if self.current_note is not None:
+            self.reminder= self.current_note.getReminder()
             self.note_title.setReadOnly(False)
             self.note_content.setReadOnly(False)
             self.note_title.setFocus()
@@ -323,7 +335,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.add_new_note_to_list(note)
         self.notes_list_widget.setCurrentRow(0)
         time = datetime.now()
-        if(self.current_note.getReminder() >= time):
+        if(str(self.current_note.getReminder()) >= str(time)):
             self.add_new_note_to_filtered_list(note)
             self.filtered_notes.setCurrentRow(0)
     
@@ -343,7 +355,7 @@ class NotesActiveMainWindow(QMainWindow):
             self.update_note_in_list(index, self.current_note)
             index = self.filtered_notes.currentIndex().row()
             self.filtered[index] = self.current_note
-            self.add_note_to_filtered_list(self.current_note)
+            self.update_note_filtered_list(index, self.current_note)
             self.reminder = datetime(2000, 1, 1, 0, 0)
         else:
             self.create_new_note()
