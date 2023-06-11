@@ -2,6 +2,7 @@ from PyQt6.QtCore import QDateTime
 from PyQt6.QtWidgets import QMainWindow,QComboBox, QLabel, QVBoxLayout, QWidget, QListWidgetItem,QMessageBox, QTextEdit, QPushButton,QLineEdit, QDateTimeEdit, QListView, QListWidget, QHBoxLayout, QPlainTextEdit, QAbstractItemView
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSlot 
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QFont, QPalette, QColor
 import importlib.util
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
@@ -21,6 +22,8 @@ notes_spec.loader.exec_module(notes_moduł)
 # Importuj klasę Note
 Note = notes_moduł.Note
 class NotesActiveMainWindow(QMainWindow):
+
+    reminder_added = pyqtSignal(Note)
     def __init__(self, color, main):
         super().__init__()
         self.main = main
@@ -32,6 +35,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.filtered_notes = QListWidget()
         self.current_note = None
         self.reminder = datetime(2000, 1, 1, 0, 0)
+
        
         self.initUI()
 
@@ -117,6 +121,7 @@ class NotesActiveMainWindow(QMainWindow):
         return True
     
     def create_note_editor(self):
+
         self.editor_layout = QVBoxLayout()
         self.note_title = QLineEdit()
         self.note_content = QPlainTextEdit()
@@ -127,6 +132,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.emoji_combobox.currentTextChanged.connect(self.add_emoji_to_note)
 
         self.note_reminder = QDateTimeEdit()
+
         self.note_reminder.setDisplayFormat("MMM dd hh:mm:ss")
         self.note_reminder.setDateTime(QDateTime.currentDateTime())
         self.note_title.setReadOnly(True)
@@ -148,6 +154,9 @@ class NotesActiveMainWindow(QMainWindow):
 
         self.reminder_button = QPushButton("Reminder 🐘")
         self.reminder_button.clicked.connect(self.reminder_note)
+
+        self.reminder_button.clicked.connect(self.reminder_note)
+        self.reminder_added.connect(self.add_note_to_filtered_list)
 
         self.editor_layout.addWidget(self.note_title)
         self.editor_layout.addWidget(self.note_content)
@@ -175,6 +184,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.new_note_button = QPushButton("Create new Note")
         self.new_note_button.clicked.connect(self.open_new_note)
         self.notes_layout.addWidget(self.new_note_button)
+        
 
     def add_note_to_list(self, note):
         item_text = self.get_item_note_text(note)
@@ -200,7 +210,7 @@ class NotesActiveMainWindow(QMainWindow):
         font = QFont()
         font.setBold(True)
         list_item.setFont(font)
-        self.filtered.insert(0,note)
+        self.filtered.append(note)
         self.filtered_notes.insertItem(0,list_item)
 
     def add_new_note_to_list(self, note):
@@ -209,14 +219,20 @@ class NotesActiveMainWindow(QMainWindow):
         font = QFont()
         font.setBold(True)
         list_item.setFont(font)
-        self.notes.insert(0, note)
+        self.notes.append(note)
         self.notes_list_widget.insertItem(0, list_item)
 
     def update_note_in_list(self, index, note):
         item_text = self.get_item_note_text(note)
         self.notes_list_widget.item(index).setText(item_text)
-        if(note.getReminder() >= datetime.now()):
-           self.filtered_notes.item(index).setText(item_text)       #tu wywala błąd
+        if index >= 0 and index < self.notes_list_widget.count():
+            self.notes_list_widget.item(index).setText(item_text)
+
+    def update_note_filtered_list(self, index, note):
+        item_text = self.get_item_note_text(note)
+        if str(note.getReminder()) >= str(datetime.now()):
+           if index >= 0 and index < self.filtered_notes.count():
+                self.filtered_notes.item(index).setText(item_text)       
 
 
     def get_item_note_text(self, note):
@@ -232,7 +248,10 @@ class NotesActiveMainWindow(QMainWindow):
         if index >= 0 and index < len(self.notes):
             self.current_note = self.notes[index]
             self.note_title.setText(self.current_note.getTitle())
-            self.note_content.setPlainText(self.current_note.getText())
+            if str(self.current_note.getReminder()) == str(self.reminder):
+                self.note_content.setPlainText(self.current_note.getText())
+            else:
+                self.note_content.setPlainText(self.current_note.getText() + '\nREMINDER: ' + str(self.current_note.getReminder()))
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
 
@@ -317,12 +336,18 @@ class NotesActiveMainWindow(QMainWindow):
             last_edit.setDateTime(QDateTime.currentDateTime())
             last_edit.setDisplayFormat("dd-MM-yyyy HH:mm:ss")
             last_edit = last_edit.text()
+            self.current_note.setReminder(self.reminder)
             self.current_note.update(new_title, new_text, self.current_note.getTime(), last_edit, self.reminder)
             index = self.notes_list_widget.currentIndex().row()
             self.notes[index] = self.current_note
             self.update_note_in_list(index, self.current_note)
+            index = self.filtered_notes.currentIndex().row()
+            self.filtered[index] = self.current_note
+            self.add_note_to_filtered_list(self.current_note)
+            self.reminder = datetime(2000, 1, 1, 0, 0)
         else:
             self.create_new_note()
+            self.reminder = datetime(2000, 1, 1, 0, 0)
     
     def transcribe_text(self):
         try:
