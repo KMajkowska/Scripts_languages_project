@@ -3,13 +3,14 @@ import sqlite3
 
 CONNECTON = 'NotesDatabase.sqlite3'
 class Note():
-    def __init__(self, uid, title, text, time, last_edit,active):
+    def __init__(self, uid, title, text, time, last_edit,active, reminder):
         self.__title : str = title
         self.__text : str = text
         self.__time : datetime = time
         self.__last_edit: datetime = last_edit
         self.__active : bool = active
         self.__uid : str = uid
+        self.__reminder : datetime = reminder
 
     def __str__(self):
         return self.__text + " " + str(self.__time)
@@ -51,8 +52,8 @@ class Note():
 
             self.__uid = str(datetime.now())
             # Wstaw notatkę do bazy danych
-            cursor.execute('INSERT INTO Notes (title, text, time, last_edit, active, uid) VALUES (?, ?, ?, ?, ?, ?)',
-                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid)))
+            cursor.execute('INSERT INTO Notes (title, text, time, last_edit, active, uid, reminder) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid), str(self.__reminder)))
 
             # Zatwierdź zmiany i zamknij połączenie
             connection.commit()
@@ -63,8 +64,8 @@ class Note():
             cursor = connection.cursor()
 
             # Zaktualizuj notatkę w bazie danych
-            cursor.execute('UPDATE Notes SET title=?, text=?, time=?, last_edit=?, active=? WHERE uid=?',
-                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid)))
+            cursor.execute('UPDATE Notes SET title=?, text=?, time=?, last_edit=?, active=?, reminder=? WHERE uid=?',
+                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid), str(self.__reminder)))
 
             # Zatwierdź zmiany i zamknij połączenie
             connection.commit()
@@ -79,12 +80,13 @@ class Note():
         connection.commit()
         connection.close()
 
-    def update(self, title, text, time, last_edit):
+    def update(self, title, text, time, last_edit, reminder):
         self.__title = title
         self.__text = text
         self.__time = time
         self.__last_edit = last_edit
         self.__active = True
+        self.__reminder = reminder
         self.addToDatabase()
         return self
 
@@ -92,3 +94,10 @@ class Note():
         self.__active = False
         self.addToDatabase()
         return self
+    
+    def setReminder(self, reminder):
+        self.__reminder = reminder
+
+    def getReminder(self):
+        return self.__reminder
+
