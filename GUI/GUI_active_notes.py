@@ -125,6 +125,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.editor_layout = QVBoxLayout()
         self.note_title = QLineEdit()
         self.note_content = QPlainTextEdit()
+        self.reminder_content = QPlainTextEdit()
 
         self.emoji_combobox = QComboBox()
         emoji_list = get_emoji_list()
@@ -160,6 +161,7 @@ class NotesActiveMainWindow(QMainWindow):
 
         self.editor_layout.addWidget(self.note_title)
         self.editor_layout.addWidget(self.note_content)
+        self.editor_layout.addWidget(self.reminder_content)
         self.editor_layout.addWidget(self.note_reminder)
         self.editor_layout.addWidget(self.edit_button)
         self.editor_layout.addWidget(self.save_button)
@@ -250,8 +252,10 @@ class NotesActiveMainWindow(QMainWindow):
             self.note_title.setText(self.current_note.getTitle())
             if str(self.current_note.getReminder()) == str(self.reminder):
                 self.note_content.setPlainText(self.current_note.getText())
+                self.reminder_content.setPlainText("No reminder set")
             else:
-                self.note_content.setPlainText(self.current_note.getText() + '\nREMINDER: ' + str(self.current_note.getReminder()))
+                self.note_content.setPlainText(self.current_note.getText())
+                self.reminder_content.setPlainText(self.current_note.getReminder())
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
 
@@ -261,8 +265,10 @@ class NotesActiveMainWindow(QMainWindow):
             self.note_title.setText(self.current_note.getTitle())
             if str(self.current_note.getReminder()) == str(self.reminder):
                 self.note_content.setPlainText(self.current_note.getText())
+                self.reminder_content.setPlainText("No reminder set")
             else:
-                self.note_content.setPlainText(self.current_note.getText() + '\nREMINDER: ' + str(self.current_note.getReminder()))
+                self.note_content.setPlainText(self.current_note.getText())
+                self.reminder_content.setPlainText(self.current_note.getReminder())
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
 
@@ -317,6 +323,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.clear_editor()
         self.note_title.setPlaceholderText("Write your note title here")
         self.note_content.setPlaceholderText("Here you can write the text for your perfect note!")
+        self.reminder_content.setPlaceholderText("Here your reminder will be shown!")
         self.note_title.setReadOnly(False)
         self.note_content.setReadOnly(False)
         self.current_note=None
