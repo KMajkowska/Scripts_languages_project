@@ -6,7 +6,19 @@ from PyQt6.QtGui import QColor
 import sys
 from GUI_notes_from_archive import NotesArchiveMainWindow
 from GUI_active_notes import NotesActiveMainWindow
+import os
+import importlib
 
+CURRENT_DATABSE_PATH = os.path.join(os.getcwd(),"database\\database.py")
+
+
+# Ścieżka do pliku notes.py
+path_database = CURRENT_DATABSE_PATH
+
+# Załaduj moduł notes
+database_spec = importlib.util.spec_from_file_location('database', path_database)
+database_moduł = importlib.util.module_from_spec(database_spec)
+database_spec.loader.exec_module(database_moduł)
 
 BLUE = "#79DDFF"
 PINK = "#FF88EA"
@@ -18,6 +30,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
+        getattr(database_moduł, 'main')()
 
 
     def initUI(self):
@@ -101,11 +114,7 @@ class MainWindow(QMainWindow):
         with open("background_color.txt", "w") as file:
             file.write(color)
             return color
-
-
-
-
-
+        
 def create_default_stylesheet():
     stylesheet = """
         QWidget {
@@ -124,6 +133,8 @@ def create_default_stylesheet():
 
     """
     return stylesheet
+
+
 
 def main():
     app = QApplication(sys.argv)
