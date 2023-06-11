@@ -52,8 +52,8 @@ class Note():
 
             self.__uid = str(datetime.now())
             # Wstaw notatkę do bazy danych
-            cursor.execute('INSERT INTO Notes (title, text, time, last_edit, active, reminder, uid) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__reminder), str(self.__uid)))
+            cursor.execute('INSERT INTO Notes (title, text, time, last_edit, active, uid, reminder) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid), str(self.__reminder)))
 
             # Zatwierdź zmiany i zamknij połączenie
             connection.commit()
@@ -63,10 +63,9 @@ class Note():
             connection = sqlite3.connect(CONNECTON)
             cursor = connection.cursor()
             # Zaktualizuj notatkę w bazie danych
-            cursor.execute('UPDATE Notes SET title=?, text=?, time=?, last_edit=?, active=?, reminder=? WHERE uid=?',
-                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__reminder), str(self.__uid)))
-
-            # Zatwierdź zmiany i zamknij połączenie
+            cursor.execute('DELETE FROM Notes WHERE uid = ?', (self.__uid,))
+            cursor.execute('INSERT INTO Notes (title, text, time, last_edit, active, uid, reminder) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                        (str(self.__title), str(self.__text), str(self.__time), str(self.__last_edit), int(self.__active), str(self.__uid), str(self.__reminder)))
             connection.commit()
             connection.close()
 
