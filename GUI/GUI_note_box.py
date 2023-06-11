@@ -60,7 +60,7 @@ class Notes(QMainWindow):
 
     def retrieveOpenedNote(self):
         self.archive.deleteNote()
-        self.note.update(self.title, self.text, self.time, self.last_edit)
+        self.note.update(self.title, self.text, self.time, self.last_edit, self.note.getReminder())
         self.archive.main.openNotes.add_new_note_to_list(self.note)
         #self.archive.load_archive_notes()
         self.close()

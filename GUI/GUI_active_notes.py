@@ -55,7 +55,7 @@ class NotesActiveMainWindow(QMainWindow):
 
         self.notes_list_widget.currentRowChanged.connect(self.select_note)
         self.notes_layout.addWidget(self.notes_list_widget)
-        #self.filtered_notes.currentRowChanged.connect(self.select_note)
+        self.filtered_notes.currentRowChanged.connect(self.select_note)
         self.notes_layout.addWidget(self.filtered_notes)
 
         self.create_note_editor()
@@ -216,7 +216,8 @@ class NotesActiveMainWindow(QMainWindow):
         item_text = self.get_item_note_text(note)
         self.notes_list_widget.item(index).setText(item_text)
         if(note.getReminder() >= datetime.now()):
-            self.filtered_notes.item(index).setText(item_text)
+           self.filtered_notes.item(index).setText(item_text)       #tu wywala błąd
+
 
     def get_item_note_text(self, note):
         first_line = note.getText().partition('\n')[0]
@@ -347,6 +348,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.delete_button.setStyleSheet(styleSheet)
         self.archive_button.setStyleSheet(styleSheet)
         self.transcribe_button.setStyleSheet(styleSheet)
+        self.reminder_button.setStyleSheet(styleSheet)
         self.main.buttonOpenNotes.setStyleSheet(styleSheet)
         self.main.buttonOpenNotesFromArchive.setStyleSheet(styleSheet)
         self.notes_list_widget.setStyleSheet("""

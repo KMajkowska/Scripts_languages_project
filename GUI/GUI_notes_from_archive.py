@@ -54,10 +54,11 @@ class NotesArchiveMainWindow(QMainWindow):
 
     def load_archive_notes(self):
         query = QSqlQuery()
-        query.prepare("SELECT uid, title, text, time, last_edit, active FROM Notes WHERE active = 0")
+        query.prepare("SELECT uid, title, text, time, last_edit, active, reminder FROM Notes WHERE active = 0")
         query.exec()
 
         data = []
+        uids = []
         while query.next():
             self.uid = query.value(0)
             self.title = query.value(1)
@@ -67,7 +68,8 @@ class NotesArchiveMainWindow(QMainWindow):
             self.active = query.value(5)
             self.reminder = query.value(6)
             data.append([self.title, self.text, self.time, self.last_edit])
-        model = NotesTableModel(data)
+            uids.append(self.uid)
+        model = NotesTableModel(data, uids)
 
         # Ustawianie modelu danych dla TableView
         self.tableView.setModel(model)
@@ -96,9 +98,11 @@ class NotesArchiveMainWindow(QMainWindow):
         selected_data = []
         for column in range(column_count):
             data = self.model.index(selected_row, column).data()
-            selected_data.append(data)
             
-        note = Note(self.uid, selected_data[0], selected_data[1], selected_data[2], selected_data[3], self.active, datetime(2000, 1, 1, 0, 0))
+            selected_data.append(data)
+        uid = self.model.uids[selected_row]
+            
+        note = Note(uid, selected_data[0], selected_data[1], selected_data[2], selected_data[3], False, datetime.datetime(2000, 1, 1, 0, 0))
         self.notes_window = Notes(selected_data[0], selected_data[1], selected_data[2], selected_data[3],note, self)
         self.notes_window.setStyleSheet(f"background-color: {self.color};")
         self.notes_window.show()
@@ -116,9 +120,10 @@ class NotesArchiveMainWindow(QMainWindow):
             print("No note selected.")
 
 class NotesTableModel(QAbstractTableModel):
-    def __init__(self, data):
+    def __init__(self, data, uids):
         super().__init__()
         self.data = data
+        self.uids = uids
         self.columns = ["Title", "Note preview", "Creation date", "Last edit date"]
 
     def rowCount(self, parent=QModelIndex()):
@@ -148,4 +153,5 @@ class NotesTableModel(QAbstractTableModel):
     def removeRow(self, row, parent=QModelIndex()):
         self.beginRemoveRows(parent, row, row)
         del self.data[row]
+        del self.uids[row]
         self.endRemoveRows()
