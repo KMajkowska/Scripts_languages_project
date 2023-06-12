@@ -291,7 +291,7 @@ class NotesActiveMainWindow(QMainWindow):
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(self.current_note.getText())
                     
-                if(str(self.current_note.getReminder()) >= str(datetime(2000, 1, 1, 0, 0))):
+                if(str(self.current_note.getReminder()) > str(datetime(2000, 1, 1, 0, 0))):
                     f.write('\n' + self.current_note.getReminder())
 
 
