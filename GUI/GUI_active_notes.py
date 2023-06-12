@@ -181,7 +181,7 @@ class NotesActiveMainWindow(QMainWindow):
         
         button_layout4 = QHBoxLayout()
         button_layout4.addWidget(self.txt_button)
-        button_layout4.addWidget(self.emoji_combobox)
+        button_layout4.addWidget(self.transcribe_button)
 
         
         self.editor_layout.addWidget(self.note_title)
@@ -193,6 +193,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.editor_layout.addLayout(button_layout2)
         self.editor_layout.addLayout(button_layout3)
         self.editor_layout.addLayout(button_layout4)
+        self.editor_layout.addWidget(self.emoji_combobox)
 
         self.notes_layout.addLayout(self.editor_layout)
 
