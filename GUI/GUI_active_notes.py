@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QDateTime
-from PyQt6.QtWidgets import QMainWindow,QComboBox, QLabel, QVBoxLayout, QWidget, QListWidgetItem,QMessageBox, QTextEdit, QPushButton,QLineEdit, QDateTimeEdit, QListView, QListWidget, QHBoxLayout, QPlainTextEdit, QAbstractItemView
+from PyQt6.QtWidgets import QMainWindow,QComboBox, QLabel, QVBoxLayout, QWidget, QListWidgetItem,QMessageBox, QSizePolicy, QPushButton,QLineEdit, QDateTimeEdit, QListView, QListWidget, QHBoxLayout, QPlainTextEdit, QAbstractItemView
 from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSlot 
 from PyQt6.QtCore import pyqtSignal
@@ -60,11 +60,12 @@ class NotesActiveMainWindow(QMainWindow):
         self.notes_layout.setContentsMargins(0, 0, 0, 0)
 
         self.notes_list_widget.currentRowChanged.connect(self.select_note)
+        self.notes_list_widget.setFixedWidth(200)
         self.notes_layout.addWidget(self.notes_list_widget)
 
         self.create_note_editor()
-        self.create_new_note_button()
         self.filtered_notes.currentRowChanged.connect(self.select_filtered_note)
+        self.filtered_notes.setFixedWidth(200)
         self.notes_layout.addWidget(self.filtered_notes)
         self.layout.addLayout(self.notes_layout)
         
@@ -140,6 +141,9 @@ class NotesActiveMainWindow(QMainWindow):
         self.note_reminder.setDateTime(QDateTime.currentDateTime())
         self.note_title.setReadOnly(True)
 
+        self.new_note_button = QPushButton("Create new note 🐇")
+        self.new_note_button.clicked.connect(self.open_new_note)
+        
         self.edit_button = QPushButton("Edit 🐞")
         self.edit_button.clicked.connect(self.edit_note)
 
@@ -158,23 +162,37 @@ class NotesActiveMainWindow(QMainWindow):
         self.reminder_button = QPushButton("Reminder 🐘")
         self.reminder_button.clicked.connect(self.reminder_note)
 
-        self.reminder_button = QPushButton("Save as txt file 🐛")
-        self.reminder_button.clicked.connect(self.save_as_txt)
+        self.txt_button = QPushButton("Save as txt file 🐛")
+        self.txt_button.clicked.connect(self.save_as_txt)
 
-        self.reminder_button.clicked.connect(self.reminder_note)
         self.reminder_added.connect(self.add_note_to_filtered_list)
 
+        button_layout1 = QHBoxLayout()
+        button_layout1.addWidget(self.new_note_button)
+        button_layout1.addWidget(self.edit_button)
+
+        button_layout2 = QHBoxLayout()
+        button_layout2.addWidget(self.save_button)
+        button_layout2.addWidget(self.delete_button)
+
+        button_layout3 = QHBoxLayout()
+        button_layout3.addWidget(self.archive_button)
+        button_layout3.addWidget(self.reminder_button)
+        
+        button_layout4 = QHBoxLayout()
+        button_layout4.addWidget(self.txt_button)
+        button_layout4.addWidget(self.emoji_combobox)
+
+        
         self.editor_layout.addWidget(self.note_title)
         self.editor_layout.addWidget(self.note_content)
         self.editor_layout.addWidget(self.reminder_content)
         self.editor_layout.addWidget(self.note_reminder)
-        self.editor_layout.addWidget(self.edit_button)
-        self.editor_layout.addWidget(self.save_button)
-        self.editor_layout.addWidget(self.delete_button)
-        self.editor_layout.addWidget(self.archive_button)
-        self.editor_layout.addWidget(self.transcribe_button)
-        self.editor_layout.addWidget(self.reminder_button)
-        self.editor_layout.addWidget(self.emoji_combobox)
+
+        self.editor_layout.addLayout(button_layout1)
+        self.editor_layout.addLayout(button_layout2)
+        self.editor_layout.addLayout(button_layout3)
+        self.editor_layout.addLayout(button_layout4)
 
         self.notes_layout.addLayout(self.editor_layout)
 
@@ -187,10 +205,6 @@ class NotesActiveMainWindow(QMainWindow):
         q_note_remind = self.note_reminder.dateTime()
         self.reminder = q_note_remind.toPyDateTime()
 
-    def create_new_note_button(self):
-        self.new_note_button = QPushButton("Create new Note")
-        self.new_note_button.clicked.connect(self.open_new_note)
-        self.notes_layout.addWidget(self.new_note_button)
 
     def add_note_to_filtered_list(self, note):
         item_text = self.get_item_note_text(note)
@@ -403,8 +417,12 @@ class NotesActiveMainWindow(QMainWindow):
             QPushButton:pressed {
                 background-color: rgba(0, 0, 0, 100);}"
         """
-        self.note_title.setStyleSheet("border: 3px solid dark; background-color: rgba(255, 255, 255, 150);")
-        self.note_content.setStyleSheet("border: 3px solid dark; background-color: rgba(255, 255, 255, 150);")
+        background ="background-color: rgba(255, 255, 255, 150);" 
+        self.note_title.setStyleSheet(background)
+        self.note_content.setStyleSheet(background)
+        self.emoji_combobox.setStyleSheet(background)
+        self.note_reminder.setStyleSheet(background)
+        self.reminder_content.setStyleSheet(background)
         self.new_note_button.setStyleSheet(styleSheet)
         self.edit_button.setStyleSheet(styleSheet)
         self.save_button.setStyleSheet(styleSheet)
@@ -412,6 +430,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.archive_button.setStyleSheet(styleSheet)
         self.transcribe_button.setStyleSheet(styleSheet)
         self.reminder_button.setStyleSheet(styleSheet)
+        self.txt_button.setStyleSheet(styleSheet)
         self.main.buttonOpenNotes.setStyleSheet(styleSheet)
         self.main.buttonOpenNotesFromArchive.setStyleSheet(styleSheet)
         self.notes_list_widget.setStyleSheet("""
