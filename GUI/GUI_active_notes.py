@@ -5,6 +5,7 @@ from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QFont, QPalette, QColor
 import importlib.util
+import os
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 from functions import CURRENT_NOTES_PATH
 from functions import speech_to_text, get_emoji_list
@@ -13,6 +14,7 @@ from datetime import datetime, timedelta
 
 # Ścieżka do pliku notes.py
 ścieżka_notes = CURRENT_NOTES_PATH
+BASE_DIR = os.path.join(os.getcwd())
 
 # Załaduj moduł notes
 notes_spec = importlib.util.spec_from_file_location('notes', ścieżka_notes)
@@ -59,11 +61,11 @@ class NotesActiveMainWindow(QMainWindow):
 
         self.notes_list_widget.currentRowChanged.connect(self.select_note)
         self.notes_layout.addWidget(self.notes_list_widget)
-        self.filtered_notes.currentRowChanged.connect(self.select_filtered_note)
-        self.notes_layout.addWidget(self.filtered_notes)
 
         self.create_note_editor()
         self.create_new_note_button()
+        self.filtered_notes.currentRowChanged.connect(self.select_filtered_note)
+        self.notes_layout.addWidget(self.filtered_notes)
         self.layout.addLayout(self.notes_layout)
         
 
@@ -125,7 +127,7 @@ class NotesActiveMainWindow(QMainWindow):
         self.editor_layout = QVBoxLayout()
         self.note_title = QLineEdit()
         self.note_content = QPlainTextEdit()
-        self.reminder_content = QPlainTextEdit()
+        self.reminder_content = QLineEdit()
 
         self.emoji_combobox = QComboBox()
         emoji_list = get_emoji_list()
@@ -155,6 +157,9 @@ class NotesActiveMainWindow(QMainWindow):
 
         self.reminder_button = QPushButton("Reminder 🐘")
         self.reminder_button.clicked.connect(self.reminder_note)
+
+        self.reminder_button = QPushButton("Save as txt file 🐛")
+        self.reminder_button.clicked.connect(self.save_as_txt)
 
         self.reminder_button.clicked.connect(self.reminder_note)
         self.reminder_added.connect(self.add_note_to_filtered_list)
@@ -245,25 +250,29 @@ class NotesActiveMainWindow(QMainWindow):
         return item_text
    
     def select_note(self, index):
+        self.filtered_notes.clearSelection()
+        self.current_note = None
         if index >= 0 and index < len(self.notes):
             self.current_note = self.notes[index]
             self.note_title.setText(self.current_note.getTitle())
             if str(self.current_note.getReminder()) == str(self.reminder):
                 self.note_content.setPlainText(self.current_note.getText())
-                self.reminder_content.setPlainText("No reminder set")
+                self.reminder_content.setText("No reminder set")
             else:
                 self.note_content.setPlainText(self.current_note.getText())
-                self.reminder_content.setPlainText(str(self.current_note.getReminder()))
+                self.reminder_content.setText("REMINDER: " + str(self.current_note.getReminder()))
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
         
 
     def select_filtered_note(self, index):
+        self.notes_list_widget.clearSelection()
+        self.current_note = None
         if index >= 0 and index < len(self.filtered):
             self.current_note = self.filtered[index]
             self.note_title.setText(self.current_note.getTitle())
             self.note_content.setPlainText(self.current_note.getText())
-            self.reminder_content.setPlainText(str(self.current_note.getReminder()))
+            self.reminder_content.setText("REMINDER: " + str(self.current_note.getReminder()))
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
 
@@ -274,6 +283,16 @@ class NotesActiveMainWindow(QMainWindow):
             self.note_content.setReadOnly(False)
             self.note_title.setFocus()
             self.note_content.setFocus()
+
+    def save_as_txt(self):
+        if self.current_note is not None:
+            output_file = os.path.join(BASE_DIR, f'{self.current_note.getTitle()}.txt')
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write(self.current_note.getText())
+                    
+                if(str(self.current_note.getReminder()) >= str(datetime(2000, 1, 1, 0, 0))):
+                    f.write('\n' + self.current_note.getReminder())
 
 
     def delete_note(self):
@@ -351,18 +370,23 @@ class NotesActiveMainWindow(QMainWindow):
             last_edit.setDisplayFormat("dd-MM-yyyy HH:mm:ss")
             last_edit = last_edit.text()
             self.current_note.setReminder(self.reminder)
-            self.current_note.update(new_title, new_text, self.current_note.getTime(), last_edit, self.reminder)
-            index = self.notes_list_widget.currentIndex().row()
-            self.notes[index] = self.current_note
-            self.update_note_in_list(index, self.current_note)
-            index = self.filtered_notes.currentIndex().row()
-            self.filtered[index] = self.current_note
-            self.update_note_filtered_list(index, self.current_note)
+            self.current_note.update(new_title, new_text, self.current_note.getTime(), last_edit, self.current_note.getReminder())
+            if str(self.current_note.getReminder()) >= str(datetime(2000, 1, 1, 0, 0)): 
+                index = self.filtered_notes.currentIndex().row()
+                self.filtered[index] = self.current_note
+                self.update_note_filtered_list(index, self.current_note)
+                index = self.notes_list_widget.currentIndex().row()
+                self.notes[index] = self.current_note
+                self.update_note_in_list(index, self.current_note)
+            else:
+                index = self.notes_list_widget.currentIndex().row()
+                self.notes[index] = self.current_note
+                self.update_note_in_list(index, self.current_note)
             self.reminder = datetime(2000, 1, 1, 0, 0)
         else:
             self.create_new_note()
             self.reminder = datetime(2000, 1, 1, 0, 0)
-    
+
     def transcribe_text(self):
         try:
             text = speech_to_text()
@@ -379,12 +403,8 @@ class NotesActiveMainWindow(QMainWindow):
             QPushButton:pressed {
                 background-color: rgba(0, 0, 0, 100);}"
         """
-        background_style = "background-color: rgba(255, 255, 255, 150);"
-        self.note_title.setStyleSheet(background_style)
-        self.note_content.setStyleSheet(background_style)
-        self.reminder_content.setStyleSheet(background_style)
-        self.note_reminder.setStyleSheet(background_style)
-        self.emoji_combobox.setStyleSheet(background_style)
+        self.note_title.setStyleSheet("border: 3px solid dark; background-color: rgba(255, 255, 255, 150);")
+        self.note_content.setStyleSheet("border: 3px solid dark; background-color: rgba(255, 255, 255, 150);")
         self.new_note_button.setStyleSheet(styleSheet)
         self.edit_button.setStyleSheet(styleSheet)
         self.save_button.setStyleSheet(styleSheet)
