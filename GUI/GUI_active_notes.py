@@ -186,16 +186,6 @@ class NotesActiveMainWindow(QMainWindow):
         self.new_note_button = QPushButton("Create new Note")
         self.new_note_button.clicked.connect(self.open_new_note)
         self.notes_layout.addWidget(self.new_note_button)
-        
-
-    def add_note_to_list(self, note):
-        item_text = self.get_item_note_text(note)
-        list_item = QListWidgetItem(item_text)
-        font = QFont()
-        font.setBold(True)
-        list_item.setFont(font)
-        self.notes.append(note)
-        self.notes_list_widget.addItem(list_item)
 
     def add_note_to_filtered_list(self, note):
         item_text = self.get_item_note_text(note)
@@ -212,8 +202,17 @@ class NotesActiveMainWindow(QMainWindow):
         font = QFont()
         font.setBold(True)
         list_item.setFont(font)
-        self.filtered.append(note)
+        self.filtered.insert(0, note)
         self.filtered_notes.insertItem(0,list_item)
+
+    def add_note_to_list(self, note):
+        item_text = self.get_item_note_text(note)
+        list_item = QListWidgetItem(item_text)
+        font = QFont()
+        font.setBold(True)
+        list_item.setFont(font)
+        self.notes.append(note)
+        self.notes_list_widget.addItem(list_item)
 
     def add_new_note_to_list(self, note):
         item_text = self.get_item_note_text(note)
@@ -221,12 +220,11 @@ class NotesActiveMainWindow(QMainWindow):
         font = QFont()
         font.setBold(True)
         list_item.setFont(font)
-        self.notes.append(note)
-        self.notes_list_widget.insertItem(0, list_item)
+        self.notes.insert(0, note)
+        self.notes_list_widget.insertItem(0,list_item)
 
     def update_note_in_list(self, index, note):
         item_text = self.get_item_note_text(note)
-        self.notes_list_widget.item(index).setText(item_text)
         if index >= 0 and index < self.notes_list_widget.count():
             self.notes_list_widget.item(index).setText(item_text)
 
@@ -255,20 +253,17 @@ class NotesActiveMainWindow(QMainWindow):
                 self.reminder_content.setPlainText("No reminder set")
             else:
                 self.note_content.setPlainText(self.current_note.getText())
-                self.reminder_content.setPlainText(self.current_note.getReminder())
+                self.reminder_content.setPlainText(str(self.current_note.getReminder()))
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
+        
 
     def select_filtered_note(self, index):
         if index >= 0 and index < len(self.filtered):
             self.current_note = self.filtered[index]
             self.note_title.setText(self.current_note.getTitle())
-            if str(self.current_note.getReminder()) == str(self.reminder):
-                self.note_content.setPlainText(self.current_note.getText())
-                self.reminder_content.setPlainText("No reminder set")
-            else:
-                self.note_content.setPlainText(self.current_note.getText())
-                self.reminder_content.setPlainText(self.current_note.getReminder())
+            self.note_content.setPlainText(self.current_note.getText())
+            self.reminder_content.setPlainText(str(self.current_note.getReminder()))
             self.note_title.setReadOnly(True)
             self.note_content.setReadOnly(True)
 
