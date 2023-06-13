@@ -7,9 +7,11 @@ import sys
 from GUI_notes_from_archive import NotesArchiveMainWindow
 from GUI_active_notes import NotesActiveMainWindow
 import os
+from functions import CURRENT_NOTES_PATH
 import importlib
+from pathlib import Path 
 
-CURRENT_DATABSE_PATH = os.path.join(os.getcwd(),"database\\database.py")
+CURRENT_DATABSE_PATH = Path(__file__).resolve().parent.parent.parent.parent / 'database/database.py'
 
 
 # Ścieżka do pliku notes.py
@@ -19,6 +21,18 @@ path_database = CURRENT_DATABSE_PATH
 database_spec = importlib.util.spec_from_file_location('database', path_database)
 database_moduł = importlib.util.module_from_spec(database_spec)
 database_spec.loader.exec_module(database_moduł)
+
+# Ścieżka do pliku notes.py
+ścieżka_notes = CURRENT_NOTES_PATH
+BASE_DIR = Path(__file__).resolve()
+
+# Załaduj moduł notes
+notes_spec = importlib.util.spec_from_file_location('notes', ścieżka_notes)
+notes_moduł = importlib.util.module_from_spec(notes_spec)
+notes_spec.loader.exec_module(notes_moduł)
+
+# Importuj klasę Note
+Note = notes_moduł.Note
 
 BLUE = "#79DDFF"
 PINK = "#FF88EA"
