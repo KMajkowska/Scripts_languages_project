@@ -1,8 +1,9 @@
 import os
 import speech_recognition as sr
 import emoji
+from pathlib import Path 
 
-CURRENT_NOTES_PATH = os.path.join(os.getcwd(),"notes\\notes.py")
+CURRENT_NOTES_PATH = Path(__file__).resolve().parent.parent.parent.parent / 'notes/notes.py'
 
 def speech_to_text():
     r = sr.Recognizer()
@@ -19,4 +20,6 @@ def get_emoji_list():
     emoji_dict = str(emoji.EMOJI_DATA)
     emojis = emoji.distinct_emoji_list(emoji_dict)
     return emojis
+
+
 
