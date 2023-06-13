@@ -301,13 +301,13 @@ class NotesActiveMainWindow(QMainWindow):
 
     def save_as_txt(self):
         if self.current_note is not None:
-            output_file = os.path.join(BASE_DIR, f'{self.current_note.getTitle()}.txt')
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save Note As", "", "Text Files (*.txt)")
 
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(self.current_note.getText())
-                    
-                if(str(self.current_note.getReminder()) > str(datetime(2000, 1, 1, 0, 0))):
-                    f.write('\n' + self.current_note.getReminder())
+            if file_path:
+                with open(file_path, "w", encoding="utf-8") as file:
+                    file.write(self.current_note.getText())
+                    if(str(self.current_note.getReminder()) > str(datetime(2000, 1, 1, 0, 0))):
+                        file.write('\n' + self.current_note.getReminder())
 
 
     def delete_note(self):
