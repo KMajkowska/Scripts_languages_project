@@ -11,10 +11,15 @@ from functions import CURRENT_NOTES_PATH
 import importlib
 from pathlib import Path 
 
-CURRENT_DATABSE_PATH = Path(__file__).resolve().parent.parent.parent.parent / 'database/database.py'
+if os.path.basename(sys.argv[0]) == "GUI.exe":
+    # Kod uruchomiony jako plik wykonywalny (.exe)
+    CURRENT_DATABSE_PATH = Path(__file__).resolve().parent.parent.parent.parent / 'database/database.py'
+else:
+    # Kod uruchomiony z Visual Studio Code lub innego kontekstu
+    CURRENT_DATABSE_PATH = os.path.join(os.getcwd(),"database\\database.py")
 
 
-# Ścieżka do pliku notes.py
+
 path_database = CURRENT_DATABSE_PATH
 
 # Załaduj moduł notes
